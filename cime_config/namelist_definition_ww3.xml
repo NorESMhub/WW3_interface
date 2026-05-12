@@ -80,6 +80,78 @@
     </desc>
   </entry>
 
+  <entry id="grid_inp_mapsta">
+    <type>char</type>
+    <group>prestage_only</group>
+    <category>prestage_only</category>
+    <input_pathname>abs</input_pathname>
+    <values>
+      <value>UNSET</value>
+      <value wav_grid="wgx3v7">$WW3_GRID_INP_DIR/g37_mapsta.inp</value>
+    </values>
+    <desc>Grid mask file; listed so check_input_data can download it.</desc>
+  </entry>
+
+  <entry id="grid_inp_bottom">
+    <type>char</type>
+    <group>prestage_only</group>
+    <category>prestage_only</category>
+    <input_pathname>abs</input_pathname>
+    <values>
+      <value>UNSET</value>
+      <value wav_grid="wgx3v7">$WW3_GRID_INP_DIR/g37_bottom.inp</value>
+    </values>
+    <desc>Grid bottom depth file; listed so check_input_data can download it.</desc>
+  </entry>
+
+  <entry id="grid_inp_y">
+    <type>char</type>
+    <group>prestage_only</group>
+    <category>prestage_only</category>
+    <input_pathname>abs</input_pathname>
+    <values>
+      <value>UNSET</value>
+      <value wav_grid="wgx3v7">$WW3_GRID_INP_DIR/g37_y.inp</value>
+    </values>
+    <desc>Grid y-coordinate file; listed so check_input_data can download it.</desc>
+  </entry>
+
+  <entry id="grid_inp_x">
+    <type>char</type>
+    <group>prestage_only</group>
+    <category>prestage_only</category>
+    <input_pathname>abs</input_pathname>
+    <values>
+      <value>UNSET</value>
+      <value wav_grid="wgx3v7">$WW3_GRID_INP_DIR/g37_x.inp</value>
+    </values>
+    <desc>Grid x-coordinate file; listed so check_input_data can download it.</desc>
+  </entry>
+
+  <entry id="grid_inp">
+    <type>char</type>
+    <group>prestage_only</group>
+    <category>prestage_only</category>
+    <input_pathname>abs</input_pathname>
+    <values>
+      <value>UNSET</value>
+      <value wav_grid="wgx3v7">$WW3_GRID_INP_DIR/ww3_grid.inp</value>
+    </values>
+    <desc>Grid input file; listed so check_input_data can download it.</desc>
+  </entry>
+
+  <entry id="grid_inp_strt">
+    <type>char</type>
+    <group>prestage_only</group>
+    <category>prestage_only</category>
+    <input_pathname>abs</input_pathname>
+    <values>
+      <value>UNSET</value>
+      <value wav_grid="wgx3v7">$WW3_GRID_INP_DIR/ww3_strt.inp</value>
+    </values>
+    <desc>Grid strt file; listed so check_input_data can download it.</desc>
+  </entry>
+
   <entry id="dtmax">
     <type>real</type>
     <group>ww3_inparm</group>

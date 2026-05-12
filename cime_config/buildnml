@@ -208,19 +208,22 @@ def _prestage_inputs(case):
 
         # Copy ww3_inp and other needed info to ww3_moddef_create directory
         input_dir = case.get_value("WW3_GRID_INP_DIR")
-        files = os.listdir(input_dir)
-        for filename in files:
-            if not os.path.isfile(os.path.join(output_dir, filename)):
-                safe_copy(os.path.join(input_dir, filename), os.path.join(output_dir, filename))
+        if os.path.isdir(input_dir):
+            files = os.listdir(input_dir)
+            for filename in files:
+                if not os.path.isfile(os.path.join(output_dir, filename)):
+                    safe_copy(os.path.join(input_dir, filename), os.path.join(output_dir, filename))
                 
         # Create mod_def file using ww3_grid and the grid_input files
-        if os.path.isfile(os.path.join(output_dir,"ww3_grid")):
+        if not os.path.isfile(os.path.join(output_dir,"ww3_grid")):
+            logger.warning("ww3_grid file not found. The mod_def.ww3 file will be created after the build phase.")
+        elif not os.path.isfile(os.path.join(output_dir,"ww3_grid.inp")):
+            logger.warning("ww3_grid.inp file not found. The file will automatically be downloaded at the ./case.submit phase.")
+        else:
             run_cmd("./ww3_grid > mod_def.ww3.log", from_dir=output_dir)
             if not os.path.isfile(os.path.join(output_dir,"mod_def.ww3")):
                 raise RuntimeError("mod_def.ww3 was not created, check mod_def.ww3.log for errors.")
             shutil.move(os.path.join(output_dir,"mod_def.ww3"), os.path.join(rundir, "mod_def.ww3"))
-        else:
-            logger.warning("ww3_grid file not found. The mod_def.ww3 file will be created after the build phase.")
             
     else:
         # Use mod_def already created 
