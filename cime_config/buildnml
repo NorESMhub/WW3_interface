@@ -36,6 +36,7 @@ def _create_namelists(case, confdir, namelist_infile, nmlgen, data_list_path):
     run_type = case.get_value("RUN_TYPE")
     config["runtype"] = run_type
     config["wav_grid"] = case.get_value("WAV_GRID")
+    config["ww3_moddef"] = case.get_value("WW3_MODDEF")
 
     rundir = case.get_value("RUNDIR")
     start_date = case.get_value("RUN_STARTDATE")
@@ -63,6 +64,15 @@ def _create_namelists(case, confdir, namelist_infile, nmlgen, data_list_path):
         filename = "%s.ww3.r.%s-%s" %(run_refcase, run_refdate, run_tod)
         nmlgen.add_default("initfile", value=filename, ignore_abs_path=True)
     else:
+        user_initfile = nmlgen.get_value("initfile")
+        if (case.get_value("WW3_MODDEF") != 'unset'
+                and not (user_initfile and user_initfile.strip().strip("'\"").strip())):
+            expect(False,
+                   "WW3_MODDEF is set to a user-supplied mod_def file, but no "
+                   "initfile was provided. When you supply your own WW3_MODDEF, "
+                   "you must also supply initfile via user_nl_ww3 (e.g., "
+                   "initfile = '/path/to/restart.ww3'). Alternatively, unset "
+                   "WW3_MODDEF to use the auto-generated calm_strt.ww3.")
         nmlgen.add_default("initfile")
 
     # error check 
@@ -190,15 +200,19 @@ def _prestage_inputs(case):
     rundir = case.get_value("RUNDIR")
 
     # Create rundir/ww3_moddef_create
-    filename = "ww3_grid"
     bldroot = os.path.join(case.get_value("EXEROOT"),"wav","obj")
-    item = os.path.join(bldroot, filename)
-    if os.path.isfile(item):
+    bld_ww3_grid = os.path.join(bldroot, "ww3_grid") # executable to create mod_def.ww3 file
+    if os.path.isfile(bld_ww3_grid):
+        bld_ww3_strt = os.path.join(bldroot, "ww3_strt") # executable to create ww3 i.c. file
+        if not os.path.isfile(bld_ww3_strt):
+            raise RuntimeError("ww3_strt executable not found in {} while ww3_grid is available".format(bldroot))
         ww3_moddef_dir = os.path.join(rundir, "ww3_moddef_create")
         if not os.path.exists(ww3_moddef_dir):
             os.makedirs(ww3_moddef_dir)
-        if not os.path.exists(os.path.join(ww3_moddef_dir,filename)):
-            safe_copy(item, ww3_moddef_dir)
+        if not os.path.exists(os.path.join(ww3_moddef_dir, "ww3_grid")):
+            safe_copy(bld_ww3_grid, ww3_moddef_dir)
+        if not os.path.exists(os.path.join(ww3_moddef_dir, "ww3_strt")):
+            safe_copy(bld_ww3_strt, ww3_moddef_dir)
 
     if case.get_value("WW3_MODDEF") == 'unset':
         # Create output dir ww3_moddef_create if appropriate
@@ -220,11 +234,22 @@ def _prestage_inputs(case):
         elif not os.path.isfile(os.path.join(output_dir,"ww3_grid.inp")):
             logger.warning("ww3_grid.inp file not found. The file will automatically be downloaded at the ./case.submit phase.")
         else:
+            # Generate mod_def.ww3 file using ww3_grid executable and the grid_input files
             run_cmd("./ww3_grid > mod_def.ww3.log", from_dir=output_dir)
             if not os.path.isfile(os.path.join(output_dir,"mod_def.ww3")):
                 raise RuntimeError("mod_def.ww3 was not created, check mod_def.ww3.log for errors.")
+            # Generate ww3_strt.ww3 file using ww3_strt executable and the grid_input files
+            if not os.path.isfile(os.path.join(output_dir,"ww3_strt")):
+                raise RuntimeError("ww3_strt file not found.")
+            if not os.path.isfile(os.path.join(output_dir,"ww3_strt.inp")):
+                raise RuntimeError("ww3_strt.inp file not found.")
+            run_cmd("./ww3_strt > ww3_strt.ww3.log", from_dir=output_dir)
+            if not os.path.isfile(os.path.join(output_dir,"restart.ww3")):
+                raise RuntimeError("restart.ww3 was not created, check ww3_strt.ww3.log for errors.")
+            # Copy mod_def.ww3 and ww3_strt.ww3 files to rundir
             shutil.move(os.path.join(output_dir,"mod_def.ww3"), os.path.join(rundir, "mod_def.ww3"))
-            
+            shutil.move(os.path.join(output_dir,"restart.ww3"), os.path.join(rundir, "calm_strt.ww3"))
+
     else:
         # Use mod_def already created 
         mod_def_in = case.get_value("WW3_MODDEF")
