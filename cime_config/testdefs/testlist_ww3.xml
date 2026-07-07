@@ -2,6 +2,7 @@
 <testlist version="2.0">
   <test name="PFS" grid="T62_wtn14nw" compset="WW3test">
     <machines>
+      <machine name="betzy" compiler="intel" category="aux_ww3_noresm"/>
       <machine name="olivia" compiler="intel" category="aux_ww3_noresm"/>
     </machines>
     <options>
@@ -10,22 +11,24 @@
   </test>
   <test name="SMS_D_Ld1" grid="T62_wtn14nw" compset="WW3test">
     <machines>
+      <machine name="betzy" compiler="intel" category="aux_ww3_noresm"/>
       <machine name="olivia" compiler="intel" category="aux_ww3_noresm"/>
     </machines>
     <options>
       <option name="wallclock">01:00:00</option>
     </options>
   </test>
-  <test name="ERR_Ld3" grid="T62_wtn14nw" compset="WW3test">
+  <test name="ERR_Ld3" grid="T62_wtn14nw" compset="WW3test" testmods="ww3/wav_24h_avg">
     <machines>
-      <machine name="olivia" compiler="gnu" category="aux_ww3_noresm"/>
+      <machine name="betzy" compiler="gnu" category="aux_ww3_noresm"/>
     </machines>
     <options>
       <option name="wallclock">01:00:00</option>
     </options>
   </test>
-  <test name="ERI_Ld10" grid="T62_wtn14" compset="WW3test">
+  <test name="ERI_Ld10" grid="T62_wtn14" compset="WW3test" testmods="ww3/wav_24h_avg">
     <machines>
+      <machine name="betzy" compiler="intel" category="aux_ww3_noresm"/>
       <machine name="olivia" compiler="intel" category="aux_ww3_noresm"/>
     </machines>
     <options>
@@ -34,18 +37,86 @@
   </test>
   <test name="SMS_D_Ld1" grid="T62_w025" compset="WW3test">
     <machines>
+      <machine name="betzy" compiler="intel" category="aux_ww3_noresm"/>
       <machine name="olivia" compiler="intel" category="aux_ww3_noresm"/>
     </machines>
     <options>
       <option name="wallclock">01:01:00</option>
     </options>
   </test>
-  <test name="ERS" grid="T62_w025" compset="WW3test">
+  <test name="ERS_Ld3" grid="T62_w025" compset="WW3test">
     <machines>
+      <machine name="betzy" compiler="intel" category="aux_ww3_noresm"/>
       <machine name="olivia" compiler="intel" category="aux_ww3_noresm"/>
     </machines>
     <options>
       <option name="wallclock">02:01:00</option>
+    </options>
+  </test>
+
+  <!-- BLOM tests -->
+  <test name="SMS_D_Ld1" grid="T62_tn14_wtn14nw" compset="NOINYOC_WW3" testmods="ww3/wav_24h_avg">
+    <machines>
+      <machine name="betzy" compiler="intel" category="aux_ww3_noresm"/>
+      <machine name="betzy" compiler="gnu" category="aux_ww3_noresm"/>
+      <machine name="olivia" compiler="intel" category="aux_ww3_noresm"/>
+    </machines>
+    <options>
+      <option name="wallclock">00:20:00</option>
+      <option name="comment">debug mode; 1 degree; hybrid coordinates; hamocc; wave code; core forcing</option>
+    </options>
+  </test>
+  <test name="ERS_Ld3" grid="T62_tn14_wtn14nw" compset="NOINY_WW3" testmods="ww3/wav_24h_avg">
+    <machines>
+      <machine name="betzy" compiler="intel" category="aux_ww3_noresm"/>
+      <machine name="betzy" compiler="gnu" category="aux_ww3_noresm"/>
+      <machine name="olivia" compiler="intel" category="aux_ww3_noresm"/>
+    </machines>
+    <options>
+      <option name="wallclock">01:00:00</option>
+      <option name="comment">restart test; 1 degree; hybrid coordinates; wave code; core forcing</option>
+    </options>
+  </test>
+
+  <!-- MOM6 tests -->
+  <test name="SMS_Ld1" grid="TL319_t232" compset="CW_JRA">
+    <machines>
+      <machine name="derecho" compiler="gnu" category="aux_ww3"/>
+    </machines>
+    <options>
+      <option name="wallclock">01:00:00</option>
+    </options>
+  </test>
+  <test name="SMS_D_Ld1" grid="TL319_t232_wg37" compset="GW_JRA">
+    <machines>
+      <machine name="derecho" compiler="intel" category="aux_ww3"/>
+    </machines>
+    <options>
+      <option name="wallclock">01:00:00</option>
+    </options>
+  </test>
+  <test name="ERS" grid="TL319_t232_wg37" compset="GW_JRA">
+    <machines>
+      <machine name="derecho" compiler="intel" category="aux_ww3"/>
+    </machines>
+    <options>
+      <option name="wallclock">02:00:00</option>
+    </options>
+  </test>
+  <test name="ERI" grid="TL319_t232" compset="GW_JRA">
+    <machines>
+      <machine name="derecho" compiler="intel" category="aux_ww3"/>
+    </machines>
+    <options>
+      <option name="wallclock">02:00:00</option>
+    </options>
+  </test>
+  <test name="SMS" grid="TL319_t232" compset="GW_JRA" testmods="ww3/legacy_cpl">
+    <machines>
+      <machine name="derecho" compiler="gnu" category="aux_ww3"/>
+    </machines>
+    <options>
+      <option name="wallclock">01:00:00</option>
     </options>
   </test>
 </testlist>
