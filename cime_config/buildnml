@@ -36,6 +36,7 @@ def _create_namelists(case, confdir, namelist_infile, nmlgen, data_list_path):
     run_type = case.get_value("RUN_TYPE")
     config["runtype"] = run_type
     config["wav_grid"] = case.get_value("WAV_GRID")
+    config["ww3_moddef"] = case.get_value("WW3_MODDEF")
 
     rundir = case.get_value("RUNDIR")
     start_date = case.get_value("RUN_STARTDATE")
@@ -60,10 +61,25 @@ def _create_namelists(case, confdir, namelist_infile, nmlgen, data_list_path):
         run_refcase = case.get_value("RUN_REFCASE")
         run_refdate = case.get_value("RUN_REFDATE")
         run_tod = case.get_value("RUN_REFTOD")
-        filename = "%s.ww3.r.%s-%s.nc" %(run_refcase, run_refdate, run_tod)
+        base = "%s.ww3.r.%s-%s" %(run_refcase, run_refdate, run_tod)
+        # WW3 writes netCDF restarts by default, so prefer the netCDF reference
+        # restart. Fall back to a binary restart (backward compatibility) when
+        # that is what the reference case wrote.
+        if (os.path.isfile(os.path.join(rundir, base))
+                and not os.path.isfile(os.path.join(rundir, base + ".nc"))):
+            filename = base            # binary reference restart (fallback)
+        else:
+            filename = base + ".nc"    # netCDF reference restart (default)
         nmlgen.add_default("initfile", value=filename, ignore_abs_path=True)
     else:
-        nmlgen.add_default("initfile")
+        # Initial (and hybrid) runs: an explicit initfile may be supplied via
+        # user_nl_ww3 (netCDF or binary). With no initfile, WW3 starts from
+        # in-core calm conditions -- no binary initial-condition file is needed.
+        user_initfile = nmlgen.get_value("initfile")
+        if user_initfile and user_initfile.strip().strip("'\"").strip():
+            nmlgen.add_default("initfile")
+        else:
+            nmlgen.set_value("initfile", "")
 
     # error check
     dtcpl = basedt / int(ncpl)
@@ -182,15 +198,14 @@ def _prestage_inputs(case):
     rundir = case.get_value("RUNDIR")
 
     # Create rundir/ww3_moddef_create
-    filename = "ww3_grid"
     bldroot = os.path.join(case.get_value("EXEROOT"),"wav","obj")
-    item = os.path.join(bldroot, filename)
-    if os.path.isfile(item):
+    bld_ww3_grid = os.path.join(bldroot, "ww3_grid") # executable to create mod_def.ww3 file
+    if os.path.isfile(bld_ww3_grid):
         ww3_moddef_dir = os.path.join(rundir, "ww3_moddef_create")
         if not os.path.exists(ww3_moddef_dir):
             os.makedirs(ww3_moddef_dir)
-        if not os.path.exists(os.path.join(ww3_moddef_dir,filename)):
-            safe_copy(item, ww3_moddef_dir)
+        if not os.path.exists(os.path.join(ww3_moddef_dir, "ww3_grid")):
+            safe_copy(bld_ww3_grid, ww3_moddef_dir)
 
     if case.get_value("WW3_MODDEF") == 'unset':
         # Create output dir ww3_moddef_create if appropriate
@@ -200,19 +215,26 @@ def _prestage_inputs(case):
 
         # Copy ww3_inp and other needed info to ww3_moddef_create directory
         input_dir = case.get_value("WW3_GRID_INP_DIR")
-        files = os.listdir(input_dir)
-        for filename in files:
-            if not os.path.isfile(os.path.join(output_dir, filename)):
-                safe_copy(os.path.join(input_dir, filename), os.path.join(output_dir, filename))
+        if os.path.isdir(input_dir):
+            files = os.listdir(input_dir)
+            for filename in files:
+                if not os.path.isfile(os.path.join(output_dir, filename)):
+                    safe_copy(os.path.join(input_dir, filename), os.path.join(output_dir, filename))
 
         # Create mod_def file using ww3_grid and the grid_input files
-        if os.path.isfile(os.path.join(output_dir,"ww3_grid")):
+        if not os.path.isfile(os.path.join(output_dir,"ww3_grid")):
+            logger.warning("ww3_grid file not found. The mod_def.ww3 file will be created after the build phase.")
+        elif not os.path.isfile(os.path.join(output_dir,"ww3_grid.inp")):
+            logger.warning("ww3_grid.inp file not found. The file will automatically be downloaded at the ./case.submit phase.")
+        else:
+            # Generate mod_def.ww3 file using ww3_grid executable and the grid_input files
             run_cmd("./ww3_grid > mod_def.ww3.log", from_dir=output_dir)
             if not os.path.isfile(os.path.join(output_dir,"mod_def.ww3")):
                 raise RuntimeError("mod_def.ww3 was not created, check mod_def.ww3.log for errors.")
+            # Copy mod_def.ww3 to rundir. No binary initial-condition file is
+            # generated: WW3 initial runs start from in-core calm conditions
+            # (or a user-supplied initfile), and restarts are netCDF.
             shutil.move(os.path.join(output_dir,"mod_def.ww3"), os.path.join(rundir, "mod_def.ww3"))
-        else:
-            logger.warning("ww3_grid file not found. The mod_def.ww3 file will be created after the build phase.")
 
     else:
         # Use mod_def already created
