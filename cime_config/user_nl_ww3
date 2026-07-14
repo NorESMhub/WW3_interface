@@ -25,7 +25,7 @@
 ! input_percent_assim_percent_mean   => input%assim%mean
 ! input_percent_assim_percent_spec1d => input%assim%spec1d
 ! input_percent_assim_percent_spec2d => input%assim%spec2d
-!
+! 
 ! type_percent_field_percent_list =>  type%field%list
 ! type_percent_point_percent_file =>  type%point%file
 !----------------------------------------------------------------------------------
