@@ -27,21 +27,4 @@
        sort of comment you desire.
   -->
 
-
-  <!-- aux_clm test suite failures -->
-
-  <test name="SMS_D_Ld1.T62_w025.WW3test.betzy_intel">
-    <phase name="COMPARE_base_rest">
-      <status>RUN</status>
-      <issue>WW3#18</issue>
-    </phase>
-  </test>
-
-  <test name="ERS.T62_w025.WW3test.betzy_intel">
-    <phase name="COMPARE_base_rest">
-      <status>RUN</status>
-      <issue>WW3#18</issue>
-    </phase>
-  </test>
-
 </expectedFails>
