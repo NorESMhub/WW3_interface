@@ -1,6 +1,6 @@
 [submodule "WW3"]
 path = WW3
 url = https://github.com/NorESMhub/WW3.git
-fxtag = dev/unified_0.1.0_noresm_v0
+fxtag = a221ee7b
 fxrequired = AlwaysRequired
 fxDONOTUSEurl = https://github.com/NorESMhub/WW3.git
